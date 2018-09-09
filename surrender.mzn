@@ -6,16 +6,21 @@ enum NEGOTIATOR;
 NEGOTIATOR: dummy;
 
 array[NEGOTIATOR] of int: honor; 
-
 array[NEGOTIATOR, NEGOTIATOR] of int: joint;
 
-var set of NEGOTIATOR: negotiators;
+%u is the largest possible cardinality
+array[1..u] of var NEGOTIATOR: party;
 
-constraint card(negotiators) >= l;
-constraint card(negotiators) <= u;
+%forcing to get strictly smaller and not dummy
+constraint forall(i in 1..u-1)(party[i] >= party[i + 1] + (party[i] != dummy));
 
-constraint sum(i,j in negotiators where i < j) (joint[i, j]) >= m;
+%constraint sum(i in 1..u)(party[i] != dummy) >= l;
+%same as above, but more explicit because dummy come at the end, right after l
+constraint forall(i in 1..l)(party[i] != dummy);
 
-var int: minHonor;
-constraint minHonor = min([honor[i] | i in NEGOTIATOR where i in negotiators]);
-solve maximize(minHonor);
+constraint sum(i,j in 1..u where i < j)(joint[party[i],party[j]]) >= m;
+
+var int: obj;
+constraint obj = min(i in 1..u)(honor[party[i]] );
+
+solve maximize obj;
