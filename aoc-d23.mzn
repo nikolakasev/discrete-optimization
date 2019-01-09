@@ -24,7 +24,8 @@ constraint forall (b in BOT) (
 );
 
 var int: inRange = sum (b in BOT) (
-  if range[b] >= manhattan(x, coordinates[b, 1], y, coordinates[b, 2], z, coordinates[b, 3]) then 1 else 0 endif
-) ;
+  range[b] >= manhattan(x, y, z, coordinates[b, 1], coordinates[b, 2], coordinates[b, 3])
+);
 
-solve maximize inRange;
+%added a search annotation, randomly trying different areas of the search space and then fixing one or two of the dimensions and doing a local search
+solve :: int_search([x,y,z], anti_first_fail, indomain_split, complete) maximize inRange;
