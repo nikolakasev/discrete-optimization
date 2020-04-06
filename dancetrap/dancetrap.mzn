@@ -93,4 +93,4 @@ var int: obj = sum(s in 1..len)(danceV[s] + enticeV[s]) - (boredom * len);
 
 solve maximize obj;
 
-output ["len = \(len);\nlegs = \([legs[l] | l in 1..len] ++ [legs[maxlen]]);\narms = \([arms[l] | l in 1..len] ++ [arms[maxlen]]);\nface = \([face[l] | l in 1..len] ++ [face[maxlen]]);\nobj = \(obj);"];
+output ["len = \(len);\nlegs = \(legs);\narms = \(arms);\nface = \(face);\nobj = \(obj);"];
