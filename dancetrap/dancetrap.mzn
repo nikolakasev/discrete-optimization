@@ -28,9 +28,9 @@ array[1..7,LEGS] of 0..7: tLegs =
      [| 2, 0, 4, 5, 6, 7
       | 0, 0, 0, 5, 6, 7
       | 2, 0, 4, 0, 0, 7
-      | 2, 0, 4, 0, 6, 7
+      | 2, 0, 4, 5, 6, 7
       | 2, 0, 4, 5, 0, 7
-      | 0, 3, 0, 0, 6, 0
+      | 2, 3, 4, 5, 6, 7
       | 2, 0, 4, 5, 6, 7 |];
       
 array[1..6,ARMS] of 0..6: tArms =
@@ -68,7 +68,7 @@ constraint forall(i in 1..len-1)
                                   
 % cannot make more than two gestures except for blank
 constraint forall(s in 1..len-2)
-                 (face[s] = face[s+1] -> ((face[s] != face[s+2]) \/ (face[s+2] = blank)));
+                 (face[s] = face[s+1] -> ((face[s] != face[s+2]) \/ (face[s] = face[s+2] /\ face[s+2] = blank)));
 
 % limit moves
 constraint forall(l in LEGS)
@@ -93,4 +93,4 @@ var int: obj = sum(s in 1..len)(danceV[s] + enticeV[s]) - (boredom * len);
 
 solve maximize obj;
 
-output ["len = \(len);\nlegs = \(legs);\narms = \(arms);\nface = \(face);\nobj = \(obj);"];
+output ["len = \(len);\nlegs = \([legs[l] | l in 1..len] ++ [legs[maxlen] | l in 1..(maxlen-len)]);\narms = \([arms[l] | l in 1..len] ++ [arms[maxlen] | l in 1..(maxlen-len)]);\nface = \([face[l] | l in 1..len] ++ [face[maxlen] | l in 1..(maxlen-len)]);\nobj = \(obj);"];
