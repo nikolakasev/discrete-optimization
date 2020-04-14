@@ -15,6 +15,9 @@ int: limit = max(m, n);
 array[COURT] of var 0..m: horse;
 array[HORSE] of var 0..n: rider;
 
+% accomodate for the variable lenght of horses and riders, whichever comes first
+constraint sum(c in COURT)(horse[c] > 0) = min(n, m);
+
 % the emperor must enjoy the day more than anyone else
 constraint forall(c in COURT)
                  (c != emperor -> horse[c] = 0 \/ (enjoy[c, horse[c]] < enjoy[emperor, horse[emperor]]));
@@ -28,19 +31,24 @@ constraint forall(c, c2 in COURT)
                                                   \/ (horse[c2] = 0)
                                                   \/ (horse[c2] = 0 /\ horse[c] = 0));
 
-constraint forall(h, h2 in HORSE)
-                 ((h != h2 /\ speed[h] > speed[h2]) ->
-                                                     (ability[rider[h]] >= ability[rider[h2]])
-                                                  \/ (rider[h] = 0)
-                                                  \/ (rider[h] = 0 /\ rider[h2] = 0));
-
+% constraint forall(h, h2 in HORSE)
+%                  ((h != h2 /\ speed[h] > speed[h2]) ->
+%                                                      (ability[rider[h]] >= ability[rider[h2]])
+%                                                   \/ (rider[h] = 0)
+%                                                   \/ (rider[h] = 0 /\ rider[h2] = 0));
+  
 constraint forall(c in COURT, h in HORSE)(horse[c] = h <-> rider[h] = c);
 
 include "globals.mzn";
 % constraint inverse(horse, rider);
 constraint alldifferent_except_0(horse);
 
-var int: obj = sum(c in COURT)(if horse[c] = 0 then 0 else enjoy[c, horse[c]] endif);
+var int: penalty = sum(h, h2 in HORSE where speed[h] > speed[h2] /\ not(
+                                                  (ability[rider[h]] >= ability[rider[h2]]
+                                               \/ (rider[h] = 0)
+                                               \/ (rider[h] = 0 /\ rider[h2] = 0))))(1);
+                        
+var int: obj = sum(c in COURT)(if horse[c] = 0 then 0 else enjoy[c, horse[c]] endif) - 100*penalty;
 
 solve maximize obj;
 
